@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/bigquery"
+	"google.golang.org/api/iterator"
 )
 
 type Data struct {
@@ -98,7 +99,22 @@ func predict(w http.ResponseWriter) {
 		return
 	}
 
+	var results []map[string]bigquery.Value
+	for {
+		var row map[string]bigquery.Value
+		err := it.Next(&row)
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Printf("Failed to read query results: %v", err)
+			http.Error(w, "Failed to read query results", http.StatusInternalServerError)
+			return
+		}
+		results = append(results, row)
+	}
+
 	w.WriteHeader(http.StatusCreated)
 	// w.Write([]byte("Row inserted successfully"))
-	fmt.Fprintln(w, it)
+	fmt.Fprintln(w, results)
 }
