@@ -54,7 +54,7 @@ func fetchLiveWeatherData() {
 	dataChannel <- data
 }
 
-func predict(w http.ResponseWriter, r *http.Request) {
+func predict(w http.ResponseWriter) {
 
 	data := <-dataChannel
 

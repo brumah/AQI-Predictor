@@ -16,5 +16,5 @@ func main() {
 
 func predictHandler(w http.ResponseWriter, r *http.Request) {
 	go fetchLiveWeatherData()
-	predict(w, r)
+	predict(w)
 }
