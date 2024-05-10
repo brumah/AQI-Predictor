@@ -115,6 +115,5 @@ func predict(w http.ResponseWriter) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	// w.Write([]byte("Row inserted successfully"))
-	fmt.Fprintln(w, results)
+	fmt.Fprintln(w, fmt.Sprintf("The current AQI is predicted to be %.0f", results[0]["predicted_AQI"]))
 }
