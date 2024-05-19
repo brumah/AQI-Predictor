@@ -21,6 +21,9 @@ type Data struct {
 type Main struct {
 	Temp     float64 `json:"temp"`
 	Humidity float64 `json:"humidity"`
+	Temp_min float64 `json:"temp_min"`
+	Temp_max float64 `json:"temp_max"`
+	Pressure float64 `json:"pressure"`
 }
 
 type Wind struct {
@@ -29,6 +32,8 @@ type Wind struct {
 
 func (m *Main) kelvinToCelsius() {
 	m.Temp = m.Temp - 273.15
+	m.Temp_min = m.Temp_min - 273.15
+	m.Temp_max = m.Temp_max - 273.15
 }
 
 func fetchLiveWeatherData() {
@@ -57,8 +62,6 @@ func fetchLiveWeatherData() {
 
 func predict(w http.ResponseWriter) {
 
-	data := <-dataChannel
-
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -70,6 +73,8 @@ func predict(w http.ResponseWriter) {
 	}
 	defer client.Close()
 
+	data := <-dataChannel
+
 	predictionQuery := fmt.Sprintf(
 		`
 		SELECT *
@@ -77,19 +82,23 @@ func predict(w http.ResponseWriter) {
 		  (
 		  SELECT
 		    TIMESTAMP("%v") AS date_timestamp,
-		    NULL AS precipitation,
-		    %v AS wind,
 		    %v AS temperature,
+		    %v AS temp_min,
+		    %v AS temp_max,
+		    %v AS wind,
 		    %v AS humidity,
-		    NULL AS dew_point
+			%v AS pressure
 		  )
 		)
 		`,
-		"`slc-air-quality.meteorology.aqi_model`",
+		"`slc-air-quality.meteorology.aqi_model_v2`",
 		time.Now().Format("2006-01-02"),
-		data.Wind.Speed,
 		data.Main.Temp,
-		data.Main.Humidity)
+		data.Main.Temp_min,
+		data.Main.Temp_max,
+		data.Wind.Speed,
+		data.Main.Humidity,
+		data.Main.Pressure)
 
 	query := client.Query(predictionQuery)
 	it, err := query.Read(ctx)
