@@ -87,7 +87,7 @@ func predict(w http.ResponseWriter) {
 		    %v AS temp_max,
 		    %v AS wind,
 		    %v AS humidity,
-			%v AS pressure
+			NULL AS pressure
 		  )
 		)
 		`,
@@ -97,8 +97,8 @@ func predict(w http.ResponseWriter) {
 		data.Main.Temp_min,
 		data.Main.Temp_max,
 		data.Wind.Speed,
-		data.Main.Humidity,
-		data.Main.Pressure)
+		data.Main.Humidity)
+	// data.Main.Pressure)
 
 	query := client.Query(predictionQuery)
 	it, err := query.Read(ctx)
