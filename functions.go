@@ -81,7 +81,7 @@ func predict(w http.ResponseWriter) {
 		FROM ML.PREDICT(MODEL %s,
 		  (
 		  SELECT
-		    TIMESTAMP("%v") AS date_timestamp,
+		    TIMESTAMP("%v") AS data_timestamp,
 		    %v AS temperature,
 		    %v AS temp_min,
 		    %v AS temp_max,
